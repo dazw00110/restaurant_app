@@ -1,13 +1,5 @@
-BD_ZALOZENIA.txt
-CO_ZROBIC.txt
-inne/
 backend/env.
 backend/node_modules/
 frontend/node_modules/
 frontend/.env
-backend-kopia
-.gitignore
-frontend_2
 inne
-test
-z
