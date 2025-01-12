@@ -14,6 +14,11 @@ const dishSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    category: {
+      type: String,
+      required: true,
+      enum: ["Appetizers", "Mains", "Desserts", "Drinks"],
+    },
     createdAt: {
       type: Date,
       default: Date.now,
@@ -24,7 +29,7 @@ const dishSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, 
+    timestamps: true,
   }
 );
 

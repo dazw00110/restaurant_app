@@ -62,14 +62,20 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
+  console.log("Login request received:", { email, password });
+
   try {
     const user = await User.findOne({ email });
-    if (!user)
+    if (!user) {
+      console.log("User not found");
       return res.status(404).json({ message: "Invalid email or password" });
+    }
 
     const isMatch = await user.matchPassword(password);
-    if (!isMatch)
+    if (!isMatch) {
+      console.log("Password does not match");
       return res.status(401).json({ message: "Invalid email or password" });
+    }
 
     // Generate JWT token
     const token = jwt.sign(
@@ -94,22 +100,12 @@ router.post("/login", async (req, res) => {
       maxAge: 60 * 60 * 1000, // 1 hour
     });
 
-    res.json({ message: "Logged in successfully" });
+    console.log("User logged in successfully:", { email, role: user.role });
+    res.json({ message: "Logged in successfully", token, role: user.role });
   } catch (err) {
+    console.error("Server error:", err);
     res.status(500).json({ message: "Server error" });
   }
-});
-
-// Ednpoint do wylogowania użytkownika
-router.post("/logout", (req, res) => {
-  // Usuwamy ciasteczko 'token'
-  res.clearCookie("token", {
-    httpOnly: true, // Zapobiega dostępności ciasteczka w JavaScript
-    secure: process.env.NODE_ENV === "production", // Wymaga HTTPS w produkcji
-    sameSite: "strict", // Zapobiega wysyłaniu ciasteczka w innych domenach
-  });
-
-  return res.json({ message: "Wylogowano pomyślnie" });
 });
 
 // Endpoint do wypisania wszystkich użytkowników
@@ -140,13 +136,15 @@ router.get("/me", verifyToken, async (req, res) => {
 // Endpoint do wypisania użytkownika po ID
 router.get("/:id", verifyToken, admin, async (req, res) => {
   let { id } = req.params;
-  id = id.trim();  // Usunięcie ewentualnych białych znaków, w tym \n
+  id = id.trim(); // Usunięcie ewentualnych białych znaków, w tym \n
 
   console.log("Id przekazane w zapytaniu:", id);
 
   // Sprawdzanie, czy id jest poprawnym ObjectId
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ message: "Nieprawidłowy identyfikator użytkownika" });
+    return res
+      .status(400)
+      .json({ message: "Nieprawidłowy identyfikator użytkownika" });
   }
 
   try {
@@ -164,11 +162,14 @@ router.get("/:id", verifyToken, admin, async (req, res) => {
 router.put("/edit/:id", verifyToken, admin, async (req, res) => {
   try {
     const { id } = req.params; // Pobieramy ID z parametru URL
-    const { firstName, lastName, phone, role, password, email, pesel } = req.body; // Bezpośrednie wyciąganie właściwości z body
+    const { firstName, lastName, phone, role, password, email, pesel } =
+      req.body; // Bezpośrednie wyciąganie właściwości z body
 
     // Sprawdzamy, czy id jest poprawnym ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Nieprawidłowy identyfikator użytkownika" });
+      return res
+        .status(400)
+        .json({ message: "Nieprawidłowy identyfikator użytkownika" });
     }
 
     // Znajdź użytkownika po ID
@@ -209,15 +210,16 @@ router.put("/edit/:id", verifyToken, admin, async (req, res) => {
   }
 });
 
-
 // Endpoint do usuwania użytkownika
 router.delete("/delete/:id", verifyToken, admin, async (req, res) => {
   let { id } = req.params;
-  id = id.trim();  // Usunięcie ewentualnych białych znaków, w tym \n
+  id = id.trim(); // Usunięcie ewentualnych białych znaków, w tym \n
 
   // Sprawdzanie, czy id jest poprawnym ObjectId
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ message: "Nieprawidłowy identyfikator użytkownika" });
+    return res
+      .status(400)
+      .json({ message: "Nieprawidłowy identyfikator użytkownika" });
   }
 
   try {
@@ -249,6 +251,5 @@ router.delete("/delete/:id", verifyToken, admin, async (req, res) => {
     });
   }
 });
-
 
 module.exports = router;

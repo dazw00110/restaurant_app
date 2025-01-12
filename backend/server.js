@@ -12,8 +12,14 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(express.json()); // Middleware do przetwarzania JSON
-app.use(cors()); // Middleware do obsługi CORS
 app.use(cookieParser()); // Używamy cookie-parser do przetwarzania ciasteczek
+app.use(cors(
+  {
+    origin: "http://localhost:5173", // Adres URL, z którego pochodzą żądania
+    methods: ["GET", "POST", "PUT", "DELETE"], // Dozwolone metody HTTP
+    allowedHeaders: ["Content-Type", "Authorization"], // Dozwolone nagłówki
+  }
+)); // Middleware do obsługi CORS
 
 mongoose
   .connect(process.env.MONGO_URI, {})

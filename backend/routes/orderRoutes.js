@@ -7,7 +7,7 @@ const mongoose = require("mongoose");
 const router = express.Router();
 
 // Tworzenie nowego zamówienia
-router.post("/", verifyToken, async (req, res) => {
+router.post("/create", verifyToken, async (req, res) => {
   const { items } = req.body;
 
   try {
@@ -103,6 +103,22 @@ router.get("/:id", verifyToken, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Błąd serwera", error: err.message });
+  }
+});
+
+// Ścieżka do pobierania historii wszystkich zamówień
+router.get("/history", verifyToken, async (req, res) => {
+  try {
+    const { status } = req.query; // Filtrowanie historii zamówień po statusie (opcjonalne)
+    const query = status ? { status } : {}; // Jeśli status jest podany, dodajemy go do query
+
+    const historyOrders = await HistoryOrder.find(query).populate(
+      "user",
+      "firstName lastName"
+    );
+    res.json(historyOrders);
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
   }
 });
 

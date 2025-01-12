@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 const router = express.Router();
 
 // Dodanie nowego dania
-router.post("/", verifyToken, admin, async (req, res) => {
+router.post("/create",   async (req, res) => {
   const dishes = req.body.dishes; // Zmieniamy, żeby otrzymać tablicę dań
 
   try {
@@ -17,16 +17,17 @@ router.post("/", verifyToken, admin, async (req, res) => {
       await dish.save();
       addedDishes.push(dish);
     }
-    res.status(201).json({ message: "Dishes added successfully", dishes: addedDishes });
+    res
+      .status(201)
+      .json({ message: "Dishes added successfully", dishes: addedDishes });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-
 // Trasa PUT do aktualizacji dania
-router.put("/edit/:id", verifyToken, admin, async (req, res) => {
+router.put("/edit/:id", async (req, res) => {
   try {
     const { id } = req.params; // Pobieramy ID z parametru URL
     const { price, description, name } = req.body; // Wyciąganie właściwości z ciała zapytania
@@ -62,7 +63,8 @@ router.put("/edit/:id", verifyToken, admin, async (req, res) => {
   }
 });
 
-router.delete("/delete/:id",verifyToken, admin, async (req, res) => {
+// Trasa DELETE do usuwania dania
+router.delete("/delete/:id", async (req, res) => {
   try {
     let { id } = req.params; // Pobranie ID dania z parametrów URL
     id = id.trim();
@@ -95,7 +97,7 @@ router.delete("/delete/:id",verifyToken, admin, async (req, res) => {
 });
 
 // Get all dishes (available to everyone)
-router.get("/", verifyToken, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const dishes = await Dish.find();
     res.json(dishes);
@@ -105,7 +107,7 @@ router.get("/", verifyToken, async (req, res) => {
 });
 
 // Get dish by ID
-router.get("/:id", verifyToken, async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params; // Pobranie ID dania z parametrów URL
 
